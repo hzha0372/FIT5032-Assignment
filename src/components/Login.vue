@@ -1,5 +1,5 @@
 <template>
-  <div style="width: 300px; margin: 50px auto">
+  <div style="width: 350px; margin: 50px auto">
     <h2 style="margin-bottom: 20px">Login</h2>
     <form @submit.prevent="submitForm">
       <div style="margin-bottom: 20px">
@@ -12,7 +12,7 @@
 
       <div style="margin-bottom: 20px">
         <label>Password:</label><br />
-        <input type="password" v-model="password" style="width: 100%; padding: 5px" />
+        <input type="text" v-model="password" style="width: 100%; padding: 5px" />
         <p v-if="passwordError" style="color: red; margin: 5px 0 0">
           Password must be at least 8 characters, with at least one uppercase and one lowercase
           letter.
@@ -21,6 +21,14 @@
 
       <button type="submit" style="margin-top: 20px; padding: 5px 15px">Login</button>
     </form>
+
+    <div style="margin-top: 50px" v-if="users.length > 0">
+      <h3>Users Information</h3>
+      <DataTable :value="users">
+        <Column field="username" header="Username"></Column>
+        <Column field="password" header="Password"></Column>
+      </DataTable>
+    </div>
   </div>
 </template>
 
@@ -32,6 +40,8 @@ const password = ref('')
 const usernameError = ref(false)
 const passwordError = ref(false)
 
+const users = ref([])
+
 const submitForm = () => {
   usernameError.value = username.value.length < 6
 
@@ -42,6 +52,12 @@ const submitForm = () => {
 
   if (!usernameError.value && !passwordError.value) {
     alert('Login successful.')
+    users.value.push({
+      username: username.value,
+      password: password.value,
+    })
+    username.value = ''
+    password.value = ''
   } else {
     alert('Login failed, please fill in the correct information.')
   }
