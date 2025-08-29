@@ -6,7 +6,7 @@
         <label>Username:</label><br />
         <input type="text" v-model="username" style="width: 100%; padding: 5px" />
         <p v-if="usernameError" style="color: red; margin: 5px 0 0">
-          Username must be at least 6 characters.
+          {{ usernameError }}
         </p>
       </div>
 
@@ -14,8 +14,7 @@
         <label>Password:</label><br />
         <input type="text" v-model="password" style="width: 100%; padding: 5px" />
         <p v-if="passwordError" style="color: red; margin: 5px 0 0">
-          Password must be at least 8 characters, with at least one uppercase and one lowercase
-          letter.
+          {{ passwordError }}
         </p>
       </div>
 
@@ -37,20 +36,32 @@ import { ref } from 'vue'
 
 const username = ref('')
 const password = ref('')
-const usernameError = ref(false)
-const passwordError = ref(false)
-
+const usernameError = ref('')
+const passwordError = ref('')
 const users = ref([])
 
 const submitForm = () => {
-  usernameError.value = username.value.length < 6
+  if (username.value === '') {
+    usernameError.value = 'Please enter your username.'
+  } else if (username.value.length < 6) {
+    usernameError.value = 'Username must be at least 6 characters.'
+  } else {
+    usernameError.value = ''
+  }
 
-  const hasUpper = /[A-Z]/.test(password.value)
-  const hasLower = /[a-z]/.test(password.value)
-  const hasLength = password.value.length >= 8
-  passwordError.value = !(hasUpper && hasLower && hasLength)
+  if (password.value === '') {
+    passwordError.value = 'Please enter your password.'
+  } else if (password.value.length < 8) {
+    passwordError.value = 'Password must be at least 8 characters.'
+  } else if (!/[A-Z]/.test(password.value)) {
+    passwordError.value = 'Password must contain at least one uppercase letter.'
+  } else if (!/[a-z]/.test(password.value)) {
+    passwordError.value = 'Password must contain at least one lowercase letter.'
+  } else {
+    passwordError.value = ''
+  }
 
-  if (!usernameError.value && !passwordError.value) {
+  if (usernameError.value === '' && passwordError.value === '') {
     alert('Login successful.')
     users.value.push({
       username: username.value,
