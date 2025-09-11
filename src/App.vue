@@ -1,9 +1,14 @@
 <script setup>
-//import HelloWorld from './components/HelloWorld.vue'
-//import TheWelcome from './components/TheWelcome.vue'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import isAuthenticated from '@/authenticate'
+const router = useRouter()
+const logout = () => {
+  isAuthenticated.value = false
+  router.push('/Firelogin')
+}
 </script>
 
-<
 <template>
   <div style="text-align: center">
     <nav class="navbar bg-light px-3">
@@ -13,7 +18,11 @@
         &nbsp;&nbsp;&nbsp;
         <router-link to="/login" class="nav-link d-inline">Login</router-link>
         &nbsp;&nbsp;&nbsp;
-        <router-link to="/resources" class="nav-link d-inline">Resources</router-link>
+        <router-link to="/FireLogin" class="nav-link d-inline">Firebase Login</router-link>
+        &nbsp;&nbsp;&nbsp;
+        <router-link to="/FireRegister" class="nav-link d-inline">Firebase Register</router-link>
+        &nbsp;&nbsp;&nbsp;
+        <button v-if="isAuthenticated" class="nav-link" @click="logout">Logout</button>
       </div>
     </nav>
     <div style="margin-top: 20px">

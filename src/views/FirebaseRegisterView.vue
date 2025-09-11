@@ -1,8 +1,7 @@
 <template>
   <div style="width: 350px; margin: 50px auto">
-    <h2 style="margin-bottom: 20px">Sign in</h2>
+    <h2 style="margin-bottom: 20px">Create an Account</h2>
     <form @submit.prevent="submitForm">
-      <!-- Email -->
       <div style="margin-bottom: 20px">
         <label>Email:</label><br />
         <input type="text" v-model="email" style="width: 100%; padding: 5px" />
@@ -11,7 +10,6 @@
         </p>
       </div>
 
-      <!-- Password -->
       <div style="margin-bottom: 20px">
         <label>Password:</label><br />
         <input type="password" v-model="password" style="width: 100%; padding: 5px" />
@@ -20,11 +18,11 @@
         </p>
       </div>
 
-      <button type="submit" style="margin-top: 20px; padding: 5px 15px">Sign in</button>
+      <button type="submit" style="margin-top: 20px; padding: 5px 15px">Register</button>
     </form>
 
     <div style="margin-top: 50px" v-if="users.length > 0">
-      <h3>Signed in Users</h3>
+      <h3>Registered Users</h3>
       <DataTable :value="users">
         <Column field="email" header="Email"></Column>
         <Column field="password" header="Password"></Column>
@@ -35,7 +33,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
 import { useRouter } from 'vue-router'
 
 const email = ref('')
@@ -60,33 +58,31 @@ const submitForm = () => {
     passwordError.value = 'Please enter your password.'
   } else if (password.value.length < 8) {
     passwordError.value = 'Password must be at least 8 characters.'
+  } else if (!/[A-Z]/.test(password.value)) {
+    passwordError.value = 'Password must contain at least one uppercase letter.'
+  } else if (!/[a-z]/.test(password.value)) {
+    passwordError.value = 'Password must contain at least one lowercase letter.'
   } else {
     passwordError.value = ''
   }
 
   if (emailError.value === '' && passwordError.value === '') {
-    signInWithEmailAndPassword(auth, email.value, password.value)
-      .then((userCredential) => {
-        alert('Login successful!')
+    createUserWithEmailAndPassword(auth, email.value, password.value)
+      .then(() => {
+        alert('Register successful!')
         users.value.push({
           email: email.value,
           password: password.value,
         })
         email.value = ''
         password.value = ''
-        router.push('/')
+        router.push('/FireLogin')
       })
       .catch((error) => {
-        if (error.code === 'auth/user-not-found') {
-          alert('This account does not exist. Please register first.')
-        } else if (error.code === 'auth/wrong-password') {
-          alert('Incorrect password. Please try again.')
-        } else {
-          alert('Login failed: ' + error.code)
-        }
+        alert('Register failed: ' + error.code)
       })
   } else {
-    alert('Login failed, please fill in the correct information.')
+    alert('Register failed, please fill in the correct information.')
   }
 }
 </script>
