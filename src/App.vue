@@ -8,7 +8,6 @@ const logout = () => {
   router.push('/Firelogin')
 }
 </script>
-
 <template>
   <div style="text-align: center">
     <nav class="navbar bg-light px-3">

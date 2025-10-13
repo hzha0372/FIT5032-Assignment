@@ -53,13 +53,10 @@ import isAuthenticated from '@/authenticate'
 const email = ref('')
 const password = ref('')
 const selectedRole = ref('')
-
 const emailError = ref('')
 const passwordError = ref('')
 const roleError = ref('')
-
 const users = ref([])
-
 const auth = getAuth()
 const router = useRouter()
 
