@@ -41,7 +41,6 @@ const password = ref('')
 const emailError = ref('')
 const passwordError = ref('')
 const users = ref([])
-
 const auth = getAuth()
 const router = useRouter()
 
