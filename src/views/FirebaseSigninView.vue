@@ -5,28 +5,22 @@
       <div style="margin-bottom: 20px">
         <label>Email:</label><br />
         <input type="text" v-model="email" style="width: 100%; padding: 5px" />
-        <p v-if="emailError" style="color: red; margin: 5px 0 0">
-          {{ emailError }}
-        </p>
+        <p v-if="emailError" style="color: red; margin: 5px 0 0">{{ emailError }}</p>
       </div>
 
       <div style="margin-bottom: 20px">
         <label>Password:</label><br />
         <input type="password" v-model="password" style="width: 100%; padding: 5px" />
-        <p v-if="passwordError" style="color: red; margin: 5px 0 0">
-          {{ passwordError }}
-        </p>
+        <p v-if="passwordError" style="color: red; margin: 5px 0 0">{{ passwordError }}</p>
       </div>
 
       <div style="margin-bottom: 20px">
         <label>Please select your role:</label><br />
         <label style="display: block; margin-top: 5px">
-          <input type="radio" value="teen" v-model="selectedRole" />
-          I'm a young person
+          <input type="radio" value="teen" v-model="selectedRole" /> I'm a young person
         </label>
         <label style="display: block; margin-top: 5px">
-          <input type="radio" value="staff" v-model="selectedRole" />
-          I'm supporting a young person
+          <input type="radio" value="staff" v-model="selectedRole" /> I'm supporting a young person
         </label>
         <p v-if="roleError" style="color: red; margin: 5px 0 0">{{ roleError }}</p>
       </div>
@@ -49,7 +43,10 @@
 import { ref } from 'vue'
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
 import { useRouter } from 'vue-router'
+import db from '@/firebase/init'
+import { collection, addDoc } from 'firebase/firestore'
 import isAuthenticated from '@/authenticate'
+
 const email = ref('')
 const password = ref('')
 const selectedRole = ref('')
@@ -57,10 +54,12 @@ const emailError = ref('')
 const passwordError = ref('')
 const roleError = ref('')
 const users = ref([])
+
 const auth = getAuth()
 const router = useRouter()
 
 const submitForm = () => {
+  // 表单验证
   if (email.value === '') {
     emailError.value = 'Please enter your email.'
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
@@ -85,16 +84,36 @@ const submitForm = () => {
 
   if (emailError.value === '' && passwordError.value === '' && roleError.value === '') {
     signInWithEmailAndPassword(auth, email.value, password.value)
-      .then((userCredential) => {
+      .then(async (userCredential) => {
         alert('Sign in successful!')
         isAuthenticated.value = true
+
+        // 保存到 Firestore
+        try {
+          await addDoc(collection(db, 'users'), {
+            email: email.value,
+            password: password.value,
+            role: selectedRole.value,
+            timestamp: new Date(),
+          })
+          console.log('User info saved to Firestore!')
+        } catch (e) {
+          console.error('Error adding document: ', e)
+        }
+
+        // 本地显示
         users.value.push({
           email: email.value,
           password: password.value,
           role: selectedRole.value,
         })
+
+        // 清空表单
         email.value = ''
         password.value = ''
+        selectedRole.value = ''
+
+        // 跳转页面
         const redirectPath = selectedRole.value === 'teen' ? '/TeenPage' : '/StaffPage'
         router.push(redirectPath)
       })

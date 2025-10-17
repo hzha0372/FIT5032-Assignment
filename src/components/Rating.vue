@@ -2,7 +2,6 @@
   <div style="width: 350px; margin: 50px auto; text-align: center">
     <h2 style="margin-bottom: 20px">Rate this page</h2>
 
-    <!-- 打分选择 -->
     <div style="font-size: 2rem; margin-bottom: 20px">
       <span
         v-for="n in 5"
@@ -18,12 +17,10 @@
       </span>
     </div>
 
-    <!-- 提交按钮 -->
     <button @click="submitRating" style="padding: 5px 15px; margin-bottom: 20px">
       Submit Rating
     </button>
 
-    <!-- 平均分显示 -->
     <div v-if="averageRating !== null" style="font-weight: bold">
       Average Rating: {{ averageRating.toFixed(1) }} / 5
     </div>
