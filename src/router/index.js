@@ -5,6 +5,10 @@ import FirebaseSigninView from '../views/FirebaseSigninView.vue'
 import FirebaseRegisterView from '../views/FirebaseRegisterView.vue'
 import TeenPage from '../views/TeenPage.vue'
 import StaffPage from '../views/StaffPage.vue'
+import ProgramAPI from '@/views/ProgramAPI.vue'
+import FeedbackAPI from '@/views/FeedbackAPI.vue'
+import AccessDenied from '@/views/AccessDenied.vue'
+import isAuthenticated from '@/authenticate'
 const routes = [
   {
     path: '/',
@@ -30,6 +34,20 @@ const routes = [
     path: '/StaffPage',
     component: StaffPage,
   },
+  {
+    path: '/ProgramAPI',
+    component: ProgramAPI,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/FeedbackAPI',
+    component: FeedbackAPI,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/AccessDenied',
+    component: AccessDenied,
+  },
 ]
 
 const router = createRouter({
@@ -38,18 +56,21 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  if (!to.meta || !to.meta.requiresRole) {
-    next()
+  const requiresAuth = to.meta.requiresAuth
+  const requiredRole = to.meta.requiresRole
+  const currentRole = localStorage.getItem('userRole')
+
+  if (requiresAuth && !isAuthenticated.value) {
+    next('/AccessDenied')
     return
   }
 
-  const needRole = to.meta.requiresRole
-  const currentRole = localStorage.getItem('userRole')
-
-  if (currentRole && currentRole === needRole) {
-    next()
-  } else {
-    next({ path: '/signin' })
+  if (requiredRole && currentRole !== requiredRole) {
+    next('/AccessDenied')
+    return
   }
+
+  next()
 })
+
 export default router
