@@ -20,8 +20,6 @@ export default {
 
   mounted() {
     const { center, zoom } = this.modelValue
-
-    // 1️⃣ 初始化地图
     const map = new mapboxgl.Map({
       container: this.$refs.mapContainer,
       style: 'mapbox://styles/mapbox/standard',
@@ -29,7 +27,6 @@ export default {
       zoom,
     })
 
-    // 2️⃣ 添加搜索框
     const geocoder = new MapboxGeocoder({
       accessToken: mapboxgl.accessToken,
       mapboxgl: mapboxgl,
@@ -38,7 +35,6 @@ export default {
     })
     map.addControl(geocoder, 'top-left')
 
-    // 3️⃣ 添加导航功能（起点终点路线）
     const directions = new MapboxDirections({
       accessToken: mapboxgl.accessToken,
       unit: 'metric',
@@ -46,12 +42,9 @@ export default {
     })
     map.addControl(directions, 'top-right')
 
-    // 4️⃣ 更新位置状态
     const updateLocation = () => this.$emit('update:modelValue', this.getLocation())
     map.on('move', updateLocation)
     map.on('zoom', updateLocation)
-
-    // 保存实例
     this.map = map
   },
 
