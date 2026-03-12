@@ -18,6 +18,7 @@ export default {
 
   mounted() {
     if (!mapboxToken) {
+      // Prevent crashing when token is not configured.
       return
     }
     const { center, zoom } = this.modelValue
