@@ -32,7 +32,7 @@ export default {
     const geocoder = new MapboxGeocoder({
       accessToken: mapboxgl.accessToken,
       mapboxgl: mapboxgl,
-      marker: true,
+      marker: false,
       placeholder: 'Search for a place...',
     })
     map.addControl(geocoder, 'top-left')
@@ -48,6 +48,16 @@ export default {
       this.marker.setLngLat(event.lngLat)
       this.$emit('update:modelValue', {
         center: event.lngLat,
+        zoom: this.map.getZoom(),
+      })
+    })
+    geocoder.on('result', (event) => {
+      const coords = event?.result?.center
+      if (!coords || coords.length !== 2) return
+      const [lng, lat] = coords
+      this.marker.setLngLat({ lng, lat })
+      this.$emit('update:modelValue', {
+        center: { lng, lat },
         zoom: this.map.getZoom(),
       })
     })
