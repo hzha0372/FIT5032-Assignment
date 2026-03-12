@@ -7,18 +7,19 @@
 <script>
 import mapboxgl from 'mapbox-gl'
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
-import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions'
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css'
-import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
-mapboxgl.accessToken =
-  'pk.eyJ1IjoiaHpoYTAzNzIiLCJhIjoiY21ndzdoNTEwMGNsczJzcHJ4a3J0czZxdyJ9.CCr0Z2lwroR2PyhJTR41Kg'
+const mapboxToken = import.meta.env.VITE_MAPBOX_TOKEN || ''
+mapboxgl.accessToken = mapboxToken
 
 export default {
   props: ['modelValue'],
 
   mounted() {
+    if (!mapboxToken) {
+      return
+    }
     const { center, zoom } = this.modelValue
     const map = new mapboxgl.Map({
       container: this.$refs.mapContainer,
@@ -35,21 +36,26 @@ export default {
     })
     map.addControl(geocoder, 'top-left')
 
-    const directions = new MapboxDirections({
-      accessToken: mapboxgl.accessToken,
-      unit: 'metric',
-      profile: 'mapbox/driving',
-    })
-    map.addControl(directions, 'top-right')
+    this.marker = new mapboxgl.Marker({ color: '#ff7a59' })
+      .setLngLat(center)
+      .addTo(map)
 
     const updateLocation = () => this.$emit('update:modelValue', this.getLocation())
     map.on('move', updateLocation)
     map.on('zoom', updateLocation)
+    map.on('click', (event) => {
+      this.marker.setLngLat(event.lngLat)
+      this.$emit('update:modelValue', {
+        center: event.lngLat,
+        zoom: this.map.getZoom(),
+      })
+    })
     this.map = map
   },
 
   unmounted() {
     this.map.remove()
+    this.marker = null
     this.map = null
   },
 
@@ -66,6 +72,9 @@ export default {
           center: next.center,
           zoom: next.zoom,
         })
+        if (this.marker) {
+          this.marker.setLngLat(next.center)
+        }
       }
     },
   },
